@@ -8,7 +8,7 @@ interface CreateCycleData {
 interface Cycle {
   id: string
   task: string
-  minutes: number
+  minutesAmount: number
   startDate: Date
   interruptedDate?: Date
   finishedDate?: Date
@@ -60,7 +60,7 @@ export const CyclesContextProvider: React.FC<CyclesContextProviderProps> = ({ ch
     const newCycle: Cycle = {
       id,
       task: data.task,
-      minutes: data.minutesAmount,   
+      minutesAmount: data.minutesAmount,   
       startDate: new Date(),
     } 
 

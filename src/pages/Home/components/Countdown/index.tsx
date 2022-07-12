@@ -17,7 +17,7 @@ export const Countdown: React.FC = () => {
     setSecondsPassed
   } = useContext(CyclesContext)
 
-  const totalSeconds = activeCycle ? activeCycle.minutes * 60 : 0
+  const totalSeconds = activeCycle ? activeCycle.minutesAmount * 60 : 0
 
   useEffect(() => {
     let interval: number
