@@ -1,17 +1,13 @@
-import React, { createContext, ReactNode, useState } from "react"
+// External Libraries
+import React, { createContext, ReactNode, useReducer, useState } from "react"
+
+// Services
+import { Cycle, cyclesReducer } from "../reducers/cycles/reducer"
+import { ActionTypes, addNewCycleAction, interruptCurrentCycleAction, markCurrentCycleAsFinishedAction } from "../reducers/cycles/actions"
 
 interface CreateCycleData {
   task: string
   minutesAmount: number
-}
-
-interface Cycle {
-  id: string
-  task: string
-  minutesAmount: number
-  startDate: Date
-  interruptedDate?: Date
-  finishedDate?: Date
 }
 
 interface CyclesContextType {
@@ -25,16 +21,21 @@ interface CyclesContextType {
   interruptCurrentCycle: () => void
 }
 
+export const CyclesContext = createContext({} as CyclesContextType)
+
 interface CyclesContextProviderProps {
   children: ReactNode
 }
 
-export const CyclesContext = createContext({} as CyclesContextType)
-
 export const CyclesContextProvider: React.FC<CyclesContextProviderProps> = ({ children }) => {
-  const [cycles, setCycles] = useState<Cycle[]>([])
-  const [activeCycleId, setActiveCycleId] = useState<string | null>(null)
+  const [cyclesState, dispatch] = useReducer(cyclesReducer, {
+    cycles: [],
+    activeCycleId: null
+  })
+  
   const [amountSecondsPassed, setAmountSecondsPassed] = useState<number>(0)
+
+  const { cycles, activeCycleId } = cyclesState
 
   const activeCycle = cycles.find(cycle => cycle.id === activeCycleId)
 
@@ -43,15 +44,7 @@ export const CyclesContextProvider: React.FC<CyclesContextProviderProps> = ({ ch
   }
 
   const markCurrentCycleAsFinished = () => {
-    setCycles(
-      state => state.map(cycle => {
-        if (cycle.id === activeCycleId) {
-          return { ...cycle, finishedDate: new Date() }
-        } else {
-          return cycle
-        }
-      })
-    )
+    dispatch(markCurrentCycleAsFinishedAction())
   }
 
   const createNewCycle = (data: CreateCycleData) => {
@@ -64,23 +57,13 @@ export const CyclesContextProvider: React.FC<CyclesContextProviderProps> = ({ ch
       startDate: new Date(),
     } 
 
-    setCycles(oldCycles => [...oldCycles, newCycle])
-    setActiveCycleId(id)
+    dispatch(addNewCycleAction(newCycle))
+
     setAmountSecondsPassed(0)
   }
 
   const interruptCurrentCycle = () => {
-    setCycles(
-      state => state.map(cycle => {
-        if (cycle.id === activeCycleId) {
-          return { ...cycle, interruptedDate: new Date() }
-        } else {
-          return cycle
-        }
-      })
-    )
-
-    setActiveCycleId(null)
+    dispatch(interruptCurrentCycleAction())
   }
 
   return (
